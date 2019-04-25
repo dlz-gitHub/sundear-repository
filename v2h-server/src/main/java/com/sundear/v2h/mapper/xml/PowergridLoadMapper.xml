@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sundear.v2h.mapper.PowergridLoadMapper">
+	 
+	<insert id="insertPowergridLoad" parameterType="com.sundear.v2h.model.PowergridLoadInfo">
+		INSERT INTO v2h_powergrid_load(
+						PGL_ID,
+						POWERGRID_POWER,
+						POWERGRID_INPUTE,
+						POWERGRID_OUTPUTE,
+						LOAD_POWER,
+						LOAD_INPUTE,
+						LOAD_OUTPUTE,
+						INSERT_DATE,
+			status
+		) VALUES (
+			            #{PglID},         
+                        #{PowergridPower},         
+                        #{PowergridInpute},         
+                        #{PowergridOutpute},         
+                        #{LoadPower},         
+                        #{LoadInpute},         
+                        #{LoadOutpute},         
+                        #{InsertDate},         
+      		1
+		)
+	</insert>
+	<update id="updatePowergridLoad" parameterType="com.sundear.v2h.model.PowergridLoadInfo">
+		update v2h_powergrid_load set		
+						POWERGRID_POWER=#{PowergridPower},
+            			POWERGRID_INPUTE=#{PowergridInpute},
+            			POWERGRID_OUTPUTE=#{PowergridOutpute},
+            			LOAD_POWER=#{LoadPower},
+            			LOAD_INPUTE=#{LoadInpute},
+            			LOAD_OUTPUTE=#{LoadOutpute},
+            			INSERT_DATE=#{InsertDate},
+            			STATUS=#{Status},
+            			last_changed=now()
+		where 
+      		status=1 
+      		AND PGL_ID=#{PglID}
+	</update>
+
+	<update id="deletePowergridLoad" parameterType="String">
+		update v2h_powergrid_load set
+			status=-1
+		where
+      		PGL_ID=#{PglID}
+	</update>
+	<resultMap id="powergridLoadResult" type="com.sundear.v2h.model.PowergridLoadInfo">
+		<id property="PglID" column="PGL_ID"/>		
+					<result property="PowergridPower" column="POWERGRID_POWER"/>
+            		<result property="PowergridInpute" column="POWERGRID_INPUTE"/>
+            		<result property="PowergridOutpute" column="POWERGRID_OUTPUTE"/>
+            		<result property="LoadPower" column="LOAD_POWER"/>
+            		<result property="LoadInpute" column="LOAD_INPUTE"/>
+            		<result property="LoadOutpute" column="LOAD_OUTPUTE"/>
+            		<result property="InsertDate" column="INSERT_DATE"/>
+            		<result property="Status" column="STATUS"/>
+            	</resultMap>
+	<select id="getPowergridLoad" parameterType="String" resultMap="powergridLoadResult">
+		SELECT * 
+		FROM v2h_powergrid_load 
+		WHERE 
+      		status=1 
+      		AND PGL_ID=#{PglID} 
+	</select>	
+    <sql id="searchValues">             
+           <!-- 搜索条件 -->
+           <if test="additionalWhereSql != null and additionalWhereSql!=''">
+      			${additionalWhereSql}
+           </if>
+    </sql> 
+	<select id="searchPowergridLoad" parameterType="com.sundear.v2h.search.PowergridLoadInfoSearch" resultMap="powergridLoadResult">
+		SELECT 
+			*
+		FROM v2h_powergrid_load 
+        WHERE
+        	status=1
+           <!-- 搜索条件-->
+           <include refid="searchValues"/>  
+           <if test="orderBy != null and orderBy !=''">
+		   	   Order By ${orderBy}
+           </if>
+           <if test="searchType != null and searchType.toString() == 'PAGES'">
+           <![CDATA[ LIMIT #{startRowNum},#{pageSize}  ]]> 
+           </if>
+           <if test="searchType != null and searchType.toString() == 'TOP'">
+           <![CDATA[ LIMIT 0,#{top}  ]]>  
+           </if>
+	</select>
+	<select id="searchPowergridLoadCount" parameterType="com.sundear.v2h.search.PowergridLoadInfoSearch" resultType="int">
+		SELECT  count(PGL_ID) as totalCount 
+		FROM v2h_powergrid_load 
+        WHERE
+        	STATUS=1
+           <!-- 搜索条件-->
+           <include refid="searchValues"/>  
+	</select>
+</mapper>

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sundear.v2h.mapper.CarportMapper">
+	 
+	<insert id="insertCarport" parameterType="com.sundear.v2h.model.CarportInfo">
+		INSERT INTO v2h_carport(
+						CARPORT_ID,
+						INVERTER_TRAFFIC_STATUS,
+						INVERTER_FAULT_STATUS,
+						INVERTER_BYPASS_INPUT,
+						INVERTER_OUTPUT_VOLTAGE,
+						INVERTER_TEMPERRATURE,
+						INVERTER_OUTPUTE,
+						INVERTER_OUT_POWER,
+						INVERTER_POWER_FACTOR,
+						BMS_VOLTAGE,
+						BATTERY_SOC,
+						BATTERY_ELECTRICITY,
+						FLOTROL_TRAFFIC_STATUS,
+						FLOTROL_RUNNING_STATUS,
+						FLOTROL_OUTPUT_VOLTAGE,
+						FLOTROL_OUTPUT_ELECTRICITY,
+						ASC_TRAFFIC_STATUS,
+						ASC_RUNNING_STATUS,
+						ASC_CONNECTION_STATUS,
+						CARPORT_NUMBER,
+						INSERT_DATE,
+			status
+		) VALUES (
+			            #{CarportID},         
+                        #{InverterTrafficStatus},         
+                        #{InverterFaultStatus},         
+                        #{InverterBypassInput},         
+                        #{InverterOutputVoltage},         
+                        #{InverterTemperrature},         
+                        #{InverterOutpute},         
+                        #{InverterOutPower},         
+                        #{InverterPowerFactor},         
+                        #{BmsVoltage},         
+                        #{BatterySoc}, 
+                        #{BatteryElectricity},             
+                        #{FlotrolTrafficStatus},         
+                        #{FlotrolRunningStatus},         
+                        #{FlotrolOutputVoltage},         
+                        #{FlotrolOutputElectricity},         
+                        #{AscTrafficStatus},         
+                        #{AscRunningStatus},         
+                        #{AscConnectionStatus},
+                        #{CarportNumber},         
+                        #{InsertDate},         
+      		1
+		)
+	</insert>
+	<update id="updateCarport" parameterType="com.sundear.v2h.model.CarportInfo">
+		update v2h_carport set		
+						INVERTER_TRAFFIC_STATUS=#{InverterTrafficStatus},
+            			INVERTER_FAULT_STATUS=#{InverterFaultStatus},
+            			INVERTER_BYPASS_INPUT=#{InverterBypassInput},
+            			INVERTER_OUTPUT_VOLTAGE=#{InverterOutputVoltage},
+            			INVERTER_TEMPERRATURE=#{InverterTemperrature},
+            			INVERTER_OUTPUTE=#{InverterOutpute},
+            			INVERTER_OUT_POWER=#{InverterOutPower},
+            			INVERTER_POWER_FACTOR=#{InverterPowerFactor},
+            			BMS_VOLTAGE=#{BmsVoltage},
+            			BATTERY_SOC=#{BatterySoc},
+            			FLOTROL_TRAFFIC_STATUS=#{FlotrolTrafficStatus},
+            			FLOTROL_RUNNING_STATUS=#{FlotrolRunningStatus},
+            			FLOTROL_OUTPUT_VOLTAGE=#{FlotrolOutputVoltage},
+            			FLOTROL_OUTPUT_ELECTRICITY=#{FlotrolOutputElectricity},
+            			ASC_TRAFFIC_STATUS=#{AscTrafficStatus},
+            			ASC_RUNNING_STATUS=#{AscRunningStatus},
+            			ASC_CONNECTION_STATUS=#{AscConnectionStatus},
+            			INSERT_DATE=#{InsertDate},
+            			STATUS=#{Status},
+            			last_changed=now()
+		where 
+      		status=1 
+      		AND CARPORT_ID=#{CarportID}
+	</update>
+
+	<update id="deleteCarport" parameterType="String">
+		update v2h_carport set
+			status=-1
+		where
+      		CARPORT_ID=#{CarportID}
+	</update>
+	<resultMap id="carportResult" type="com.sundear.v2h.model.CarportInfo">
+		<id property="CarportID" column="CARPORT_ID"/>		
+					<result property="InverterTrafficStatus" column="INVERTER_TRAFFIC_STATUS"/>
+            		<result property="InverterFaultStatus" column="INVERTER_FAULT_STATUS"/>
+            		<result property="InverterBypassInput" column="INVERTER_BYPASS_INPUT"/>
+            		<result property="InverterOutputVoltage" column="INVERTER_OUTPUT_VOLTAGE"/>
+            		<result property="InverterTemperrature" column="INVERTER_TEMPERRATURE"/>
+            		<result property="InverterOutpute" column="INVERTER_OUTPUTE"/>
+            		<result property="InverterOutPower" column="INVERTER_OUT_POWER"/>
+            		<result property="InverterPowerFactor" column="INVERTER_POWER_FACTOR"/>
+            		<result property="BmsVoltage" column="BMS_VOLTAGE"/>
+            		<result property="BatterySoc" column="BATTERY_SOC"/>
+            		<result property="FlotrolTrafficStatus" column="FLOTROL_TRAFFIC_STATUS"/>
+            		<result property="FlotrolRunningStatus" column="FLOTROL_RUNNING_STATUS"/>
+            		<result property="FlotrolOutputVoltage" column="FLOTROL_OUTPUT_VOLTAGE"/>
+            		<result property="FlotrolOutputElectricity" column="FLOTROL_OUTPUT_ELECTRICITY"/>
+            		<result property="AscTrafficStatus" column="ASC_TRAFFIC_STATUS"/>
+            		<result property="AscRunningStatus" column="ASC_RUNNING_STATUS"/>
+            		<result property="AscConnectionStatus" column="ASC_CONNECTION_STATUS"/>
+            		<result property="InsertDate" column="INSERT_DATE"/>
+            		<result property="Status" column="STATUS"/>
+            	</resultMap>
+	<select id="getCarport" parameterType="String" resultMap="carportResult">
+		SELECT * 
+		FROM v2h_carport 
+		WHERE 
+      		status=1 
+      		AND CARPORT_ID=#{CarportID} 
+	</select>	
+    <sql id="searchValues">             
+           <!-- 搜索条件 -->
+           <if test="additionalWhereSql != null and additionalWhereSql!=''">
+      			${additionalWhereSql}
+           </if>
+    </sql> 
+	<select id="searchCarport" parameterType="com.sundear.v2h.search.CarportInfoSearch" resultMap="carportResult">
+		SELECT 
+			*
+		FROM v2h_carport 
+        WHERE
+        	status=1
+           <!-- 搜索条件-->
+           <include refid="searchValues"/>  
+           <if test="orderBy != null and orderBy !=''">
+		   	   Order By ${orderBy}
+           </if>
+           <if test="searchType != null and searchType.toString() == 'PAGES'">
+           <![CDATA[ LIMIT #{startRowNum},#{pageSize}  ]]> 
+           </if>
+           <if test="searchType != null and searchType.toString() == 'TOP'">
+           <![CDATA[ LIMIT 0,#{top}  ]]>  
+           </if>
+	</select>
+	<select id="searchCarportCount" parameterType="com.sundear.v2h.search.CarportInfoSearch" resultType="int">
+		SELECT  count(CARPORT_ID) as totalCount 
+		FROM v2h_carport 
+        WHERE
+        	STATUS=1
+           <!-- 搜索条件-->
+           <include refid="searchValues"/>  
+	</select>
+</mapper>

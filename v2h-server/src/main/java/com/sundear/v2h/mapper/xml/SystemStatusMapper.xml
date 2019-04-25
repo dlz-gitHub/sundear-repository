@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sundear.v2h.mapper.SystemStatusMapper">
+	 
+	<insert id="insertSystemStatus" parameterType="com.sundear.v2h.model.SystemStatusInfo">
+		INSERT INTO v2h_system_status(
+						SS_ID,
+						SYSTEM_ELECTRICITY,
+						SYSTEM_VOLTAGE,
+						BUSBAR_VOLTAGE,
+						MODULE_CAPACITY,
+						INSERT_DATE,
+			status
+		) VALUES (
+			            #{SsID},         
+                        #{SystemElectricity},         
+                        #{SystemVoltage},         
+                        #{BusbarVoltage},         
+                        #{ModuleCapacity},         
+                        #{InsertDate},         
+      		1
+		)
+	</insert>
+	<update id="updateSystemStatus" parameterType="com.sundear.v2h.model.SystemStatusInfo">
+		update v2h_system_status set		
+						SYSTEM_ELECTRICITY=#{SystemElectricity},
+            			SYSTEM_VOLTAGE=#{SystemVoltage},
+            			BUSBAR_VOLTAGE=#{BusbarVoltage},
+            			MODULE_CAPACITY=#{ModuleCapacity},
+            			INSERT_DATE=#{InsertDate},
+            			STATUS=#{Status},
+            			last_changed=now()
+		where 
+      		status=1 
+      		AND SS_ID=#{SsID}
+	</update>
+
+	<update id="deleteSystemStatus" parameterType="String">
+		update v2h_system_status set
+			status=-1
+		where
+      		SS_ID=#{SsID}
+	</update>
+	<resultMap id="systemStatusResult" type="com.sundear.v2h.model.SystemStatusInfo">
+		<id property="SsID" column="SS_ID"/>		
+					<result property="SystemElectricity" column="SYSTEM_ELECTRICITY"/>
+            		<result property="SystemVoltage" column="SYSTEM_VOLTAGE"/>
+            		<result property="BusbarVoltage" column="BUSBAR_VOLTAGE"/>
+            		<result property="ModuleCapacity" column="MODULE_CAPACITY"/>
+            		<result property="InsertDate" column="INSERT_DATE"/>
+            		<result property="Status" column="STATUS"/>
+            	</resultMap>
+	<select id="getSystemStatus" parameterType="String" resultMap="systemStatusResult">
+		SELECT * 
+		FROM v2h_system_status 
+		WHERE 
+      		status=1 
+      		AND SS_ID=#{SsID} 
+	</select>	
+    <sql id="searchValues">             
+           <!-- 搜索条件 -->
+           <if test="additionalWhereSql != null and additionalWhereSql!=''">
+      			${additionalWhereSql}
+           </if>
+    </sql> 
+	<select id="searchSystemStatus" parameterType="com.sundear.v2h.search.SystemStatusInfoSearch" resultMap="systemStatusResult">
+		SELECT 
+			*
+		FROM v2h_system_status 
+        WHERE
+        	status=1
+           <!-- 搜索条件-->
+           <include refid="searchValues"/>  
+           <if test="orderBy != null and orderBy !=''">
+		   	   Order By ${orderBy}
+           </if>
+           <if test="searchType != null and searchType.toString() == 'PAGES'">
+           <![CDATA[ LIMIT #{startRowNum},#{pageSize}  ]]> 
+           </if>
+           <if test="searchType != null and searchType.toString() == 'TOP'">
+           <![CDATA[ LIMIT 0,#{top}  ]]>  
+           </if>
+	</select>
+	<select id="searchSystemStatusCount" parameterType="com.sundear.v2h.search.SystemStatusInfoSearch" resultType="int">
+		SELECT  count(SS_ID) as totalCount 
+		FROM v2h_system_status 
+        WHERE
+        	STATUS=1
+           <!-- 搜索条件-->
+           <include refid="searchValues"/>  
+	</select>
+</mapper>

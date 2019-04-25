@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sundear.v2h.mapper.EnvironmentMonitoringMapper">
+	 
+	<insert id="insertEnvironmentMonitoring" parameterType="com.sundear.v2h.model.EnvironmentMonitoringInfo">
+		INSERT INTO v2h_environment_monitoring(
+						EM_ID,
+						ENVIRONMENT_TEMPERATURE,
+						TOTAL_RADIATION,
+						DAILY_RADIATION,
+						INSERT_DATE,
+			status
+		) VALUES (
+			            #{EmID},         
+                        #{EnvironmentTemperature},         
+                        #{TotalRadiation},         
+                        #{DailyRadiation},         
+                        #{InsertDate},         
+      		1
+		)
+	</insert>
+	<update id="updateEnvironmentMonitoring" parameterType="com.sundear.v2h.model.EnvironmentMonitoringInfo">
+		update v2h_environment_monitoring set		
+						ENVIRONMENT_TEMPERATURE=#{EnvironmentTemperature},
+            			TOTAL_RADIATION=#{TotalRadiation},
+            			DAILY_RADIATION=#{DailyRadiation},
+            			INSERT_DATE=#{InsertDate},
+            			STATUS=#{Status},
+            			last_changed=now()
+		where 
+      		status=1 
+      		AND EM_ID=#{EmID}
+	</update>
+
+	<update id="deleteEnvironmentMonitoring" parameterType="String">
+		update v2h_environment_monitoring set
+			status=-1
+		where
+      		EM_ID=#{EmID}
+	</update>
+	<resultMap id="environmentMonitoringResult" type="com.sundear.v2h.model.EnvironmentMonitoringInfo">
+		<id property="EmID" column="EM_ID"/>		
+					<result property="EnvironmentTemperature" column="ENVIRONMENT_TEMPERATURE"/>
+            		<result property="TotalRadiation" column="TOTAL_RADIATION"/>
+            		<result property="DailyRadiation" column="DAILY_RADIATION"/>
+            		<result property="InsertDate" column="INSERT_DATE"/>
+            		<result property="Status" column="STATUS"/>
+            	</resultMap>
+	<select id="getEnvironmentMonitoring" parameterType="String" resultMap="environmentMonitoringResult">
+		SELECT * 
+		FROM v2h_environment_monitoring 
+		WHERE 
+      		status=1 
+      		AND EM_ID=#{EmID} 
+	</select>	
+    <sql id="searchValues">             
+           <!-- 搜索条件 -->
+           <if test="additionalWhereSql != null and additionalWhereSql!=''">
+      			${additionalWhereSql}
+           </if>
+    </sql> 
+	<select id="searchEnvironmentMonitoring" parameterType="com.sundear.v2h.search.EnvironmentMonitoringInfoSearch" resultMap="environmentMonitoringResult">
+		SELECT 
+			*
+		FROM v2h_environment_monitoring 
+        WHERE
+        	status=1
+           <!-- 搜索条件-->
+           <include refid="searchValues"/>  
+           <if test="orderBy != null and orderBy !=''">
+		   	   Order By ${orderBy}
+           </if>
+           <if test="searchType != null and searchType.toString() == 'PAGES'">
+           <![CDATA[ LIMIT #{startRowNum},#{pageSize}  ]]> 
+           </if>
+           <if test="searchType != null and searchType.toString() == 'TOP'">
+           <![CDATA[ LIMIT 0,#{top}  ]]>  
+           </if>
+	</select>
+	<select id="searchEnvironmentMonitoringCount" parameterType="com.sundear.v2h.search.EnvironmentMonitoringInfoSearch" resultType="int">
+		SELECT  count(EM_ID) as totalCount 
+		FROM v2h_environment_monitoring 
+        WHERE
+        	STATUS=1
+           <!-- 搜索条件-->
+           <include refid="searchValues"/>  
+	</select>
+</mapper>

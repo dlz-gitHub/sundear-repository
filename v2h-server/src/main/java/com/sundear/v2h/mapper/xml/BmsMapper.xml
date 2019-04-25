@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sundear.v2h.mapper.BmsMapper">
+	 
+	<insert id="insertBms" parameterType="com.sundear.v2h.model.BmsInfo">
+		INSERT INTO v2h_bms(
+						BMS_ID,
+						BMS_TOTAL_VOLTAGE,
+						BMS_TEMPERATURE,
+						BMS_SOC,
+						BMS_NUMBER,
+						INSERT_DATE,
+			status
+		) VALUES (
+			            #{BmsID},         
+                        #{BmsTotalVoltage},         
+                        #{BmsTemperature},         
+                        #{BmsSoc},         
+                        #{BmsNumber},         
+                        #{InsertDate},         
+      		1
+		)
+	</insert>
+	<update id="updateBms" parameterType="com.sundear.v2h.model.BmsInfo">
+		update v2h_bms set		
+						BMS_TOTAL_VOLTAGE=#{BmsTotalVoltage},
+            			BMS_TEMPERATURE=#{BmsTemperature},
+            			BMS_SOC=#{BmsSoc},
+            			BMS_NUMBER=#{BmsNumber},
+            			INSERT_DATE=#{InsertDate},
+            			STATUS=#{Status},
+            			last_changed=now()
+		where 
+      		status=1 
+      		AND BMS_ID=#{BmsID}
+	</update>
+
+	<update id="deleteBms" parameterType="String">
+		update v2h_bms set
+			status=-1
+		where
+      		BMS_ID=#{BmsID}
+	</update>
+	<resultMap id="bmsResult" type="com.sundear.v2h.model.BmsInfo">
+		<id property="BmsID" column="BMS_ID"/>		
+					<result property="BmsTotalVoltage" column="BMS_TOTAL_VOLTAGE"/>
+            		<result property="BmsTemperature" column="BMS_TEMPERATURE"/>
+            		<result property="BmsSoc" column="BMS_SOC"/>
+            		<result property="BmsNumber" column="BMS_NUMBER"/>
+            		<result property="InsertDate" column="INSERT_DATE"/>
+            		<result property="Status" column="STATUS"/>
+            	</resultMap>
+	<select id="getBms" parameterType="String" resultMap="bmsResult">
+		SELECT * 
+		FROM v2h_bms 
+		WHERE 
+      		status=1 
+      		AND BMS_ID=#{BmsID} 
+	</select>	
+    <sql id="searchValues">             
+           <!-- 搜索条件 -->
+           <if test="additionalWhereSql != null and additionalWhereSql!=''">
+      			${additionalWhereSql}
+           </if>
+    </sql> 
+	<select id="searchBms" parameterType="com.sundear.v2h.search.BmsInfoSearch" resultMap="bmsResult">
+		SELECT 
+			*
+		FROM v2h_bms 
+        WHERE
+        	status=1
+           <!-- 搜索条件-->
+           <include refid="searchValues"/>  
+           <if test="orderBy != null and orderBy !=''">
+		   	   Order By ${orderBy}
+           </if>
+           <if test="searchType != null and searchType.toString() == 'PAGES'">
+           <![CDATA[ LIMIT #{startRowNum},#{pageSize}  ]]> 
+           </if>
+           <if test="searchType != null and searchType.toString() == 'TOP'">
+           <![CDATA[ LIMIT 0,#{top}  ]]>  
+           </if>
+	</select>
+	<select id="searchBmsCount" parameterType="com.sundear.v2h.search.BmsInfoSearch" resultType="int">
+		SELECT  count(BMS_ID) as totalCount 
+		FROM v2h_bms 
+        WHERE
+        	STATUS=1
+           <!-- 搜索条件-->
+           <include refid="searchValues"/>  
+	</select>
+</mapper>
