@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.v2h.core.mapper.CabinMapper">
+	 
+	<insert id="insertCabin" parameterType="com.v2h.core.model.CabinInfo">
+		INSERT INTO v2h_cabin(
+						CABIN_ID,
+						CABIN_PV1_VOLTAGE,
+						CABIN_PV1_ELECTRICITY,
+						CABIN_PV1_MODE,
+						CABIN_PV2_VOLTAGE,
+						CABIN_PV2_ELECTRICITY,
+						CABIN_PV2_MODE,
+						BATTERY_VOLTAGE,
+						GRID_VOLTAGE,
+						GRID_ELECTRICITY,
+						GRID_POWER,
+						GRID_FREQUENCY,
+						LOAD_VOLTAGE,
+						LOAD_ELECTRICITY,
+						LOAD_POWER,
+						LOAD_FREQUENCY,
+						FEEDBACK_TOTAL_EQ,
+						FEEDBACK_TOTAL_TIME,
+						FEEDBACK_DAILY_EQ,
+						LOAD_DAILY_EQ,
+						LOAD_TOTAL_EQ,
+						INVERTER_TOTAL_POWER,
+						CABIN_TOTAL_OUTPUTE,
+						INSERT_DATE,
+			status
+		) VALUES (
+			            #{CabinID},         
+                        #{CabinPv1Voltage},         
+                        #{CabinPv1Electricity},         
+                        #{CabinPv1Mode},         
+                        #{CabinPv2Voltage},         
+                        #{CabinPv2Electricity},         
+                        #{CabinPv2Mode},         
+                        #{BatteryVoltage},         
+                        #{GridVoltage},         
+                        #{GridElectricity},         
+                        #{GridPower},         
+                        #{GridFrequency},         
+                        #{LoadVoltage},         
+                        #{LoadElectricity},         
+                        #{LoadPower},         
+                        #{LoadFrequency},         
+                        #{FeedbackTotalEq},         
+                        #{FeedbackTotalTime},         
+                        #{FeedbackDailyEq},         
+                        #{LoadDailyEq},         
+                        #{LoadTotalEq},         
+                        #{InverterTotalPower},         
+                        #{CabinTotalOutpute},         
+                        #{InsertDate},         
+                  		now(),
+      		now(),
+      		1
+		)
+	</insert>
+	<update id="updateCabin" parameterType="com.v2h.core.model.CabinInfo">
+		update v2h_cabin set		
+						CABIN_PV1_VOLTAGE=#{CabinPv1Voltage},
+            			CABIN_PV1_ELECTRICITY=#{CabinPv1Electricity},
+            			CABIN_PV1_MODE=#{CabinPv1Mode},
+            			CABIN_PV2_VOLTAGE=#{CabinPv2Voltage},
+            			CABIN_PV2_ELECTRICITY=#{CabinPv2Electricity},
+            			CABIN_PV2_MODE=#{CabinPv2Mode},
+            			BATTERY_VOLTAGE=#{BatteryVoltage},
+            			GRID_VOLTAGE=#{GridVoltage},
+            			GRID_ELECTRICITY=#{GridElectricity},
+            			GRID_POWER=#{GridPower},
+            			GRID_FREQUENCY=#{GridFrequency},
+            			LOAD_VOLTAGE=#{LoadVoltage},
+            			LOAD_ELECTRICITY=#{LoadElectricity},
+            			LOAD_POWER=#{LoadPower},
+            			LOAD_FREQUENCY=#{LoadFrequency},
+            			FEEDBACK_TOTAL_EQ=#{FeedbackTotalEq},
+            			FEEDBACK_TOTAL_TIME=#{FeedbackTotalTime},
+            			FEEDBACK_DAILY_EQ=#{FeedbackDailyEq},
+            			LOAD_DAILY_EQ=#{LoadDailyEq},
+            			LOAD_TOTAL_EQ=#{LoadTotalEq},
+            			INVERTER_TOTAL_POWER=#{InverterTotalPower},
+            			CABIN_TOTAL_OUTPUTE=#{CabinTotalOutpute},
+            			INSERT_DATE=#{InsertDate},
+            			STATUS=#{Status},
+            			last_changed=now()
+		where 
+      		status=1 
+      		AND CABIN_ID=#{CabinID}
+	</update>
+
+	<update id="deleteCabin" parameterType="String">
+		update v2h_cabin set
+			status=-1
+		where
+      		CABIN_ID=#{CabinID}
+	</update>
+	<resultMap id="cabinResult" type="com.v2h.core.model.CabinInfo">
+		<id property="CabinID" column="CABIN_ID"/>		
+					<result property="CabinPv1Voltage" column="CABIN_PV1_VOLTAGE"/>
+            		<result property="CabinPv1Electricity" column="CABIN_PV1_ELECTRICITY"/>
+            		<result property="CabinPv1Mode" column="CABIN_PV1_MODE"/>
+            		<result property="CabinPv2Voltage" column="CABIN_PV2_VOLTAGE"/>
+            		<result property="CabinPv2Electricity" column="CABIN_PV2_ELECTRICITY"/>
+            		<result property="CabinPv2Mode" column="CABIN_PV2_MODE"/>
+            		<result property="BatteryVoltage" column="BATTERY_VOLTAGE"/>
+            		<result property="GridVoltage" column="GRID_VOLTAGE"/>
+            		<result property="GridElectricity" column="GRID_ELECTRICITY"/>
+            		<result property="GridPower" column="GRID_POWER"/>
+            		<result property="GridFrequency" column="GRID_FREQUENCY"/>
+            		<result property="LoadVoltage" column="LOAD_VOLTAGE"/>
+            		<result property="LoadElectricity" column="LOAD_ELECTRICITY"/>
+            		<result property="LoadPower" column="LOAD_POWER"/>
+            		<result property="LoadFrequency" column="LOAD_FREQUENCY"/>
+            		<result property="FeedbackTotalEq" column="FEEDBACK_TOTAL_EQ"/>
+            		<result property="FeedbackTotalTime" column="FEEDBACK_TOTAL_TIME"/>
+            		<result property="FeedbackDailyEq" column="FEEDBACK_DAILY_EQ"/>
+            		<result property="LoadDailyEq" column="LOAD_DAILY_EQ"/>
+            		<result property="LoadTotalEq" column="LOAD_TOTAL_EQ"/>
+            		<result property="InverterTotalPower" column="INVERTER_TOTAL_POWER"/>
+            		<result property="CabinTotalOutpute" column="CABIN_TOTAL_OUTPUTE"/>
+            		<result property="InsertDate" column="INSERT_DATE"/>
+            		<result property="Status" column="STATUS"/>
+            	</resultMap>
+	<select id="getCabin" parameterType="String" resultMap="cabinResult">
+		SELECT * 
+		FROM v2h_cabin 
+		WHERE 
+      		status=1 
+      		AND CABIN_ID=#{CabinID} 
+	</select>	
+    <sql id="searchValues">             
+           <!-- 搜索条件 -->
+           <if test="additionalWhereSql != null and additionalWhereSql!=''">
+      			${additionalWhereSql}
+           </if>
+    </sql> 
+	<select id="searchCabin" parameterType="com.v2h.core.search.CabinInfoSearch" resultMap="cabinResult">
+		SELECT 
+			*
+		FROM v2h_cabin 
+        WHERE
+        	status=1
+           <!-- 搜索条件-->
+           <include refid="searchValues"/>  
+           <if test="orderBy != null and orderBy !=''">
+		   	   Order By ${orderBy}
+           </if>
+           <if test="searchType != null and searchType.toString() == 'PAGES'">
+           <![CDATA[ LIMIT #{startRowNum},#{pageSize}  ]]> 
+           </if>
+           <if test="searchType != null and searchType.toString() == 'TOP'">
+           <![CDATA[ LIMIT 0,#{top}  ]]>  
+           </if>
+	</select>
+	<select id="searchCabinCount" parameterType="com.v2h.core.search.CabinInfoSearch" resultType="int">
+		SELECT  count(CABIN_ID) as totalCount 
+		FROM v2h_cabin 
+        WHERE
+        	STATUS=1
+           <!-- 搜索条件-->
+           <include refid="searchValues"/>  
+	</select>
+</mapper>

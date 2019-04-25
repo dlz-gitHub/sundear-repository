@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.v2h.core.mapper.PcsMapper">
+	 
+	<insert id="insertPcs" parameterType="com.v2h.core.model.PcsInfo">
+		INSERT INTO v2h_pcs(
+						PCS_ID,
+						PCS_BUSBAR_VOLTAGE,
+						PCS_BUSBAR_ELECTRICITY,
+						PCS_BUSBAR_POWER,
+						PCS_TOTAL_ACTIVEPOWER,
+						PCS_TOTAL_REACTIVEPOWER,
+						PCS_POWER_FACTOR,
+						PCS_CHARGE,
+						PCS_DISCHARGE,
+						INSERT_DATE,
+			status
+		) VALUES (
+			            #{PcsID},         
+                        #{PcsBusbarVoltage},         
+                        #{PcsBusbarElectricity},         
+                        #{PcsBusbarPower},         
+                        #{PcsTotalActivepower},         
+                        #{PcsTotalReactivepower},         
+                        #{PcsPowerFactor},         
+                        #{PcsCharge},         
+                        #{PcsDischarge},         
+                        #{InsertDate},         
+      		1
+		)
+	</insert>
+	<update id="updatePcs" parameterType="com.v2h.core.model.PcsInfo">
+		update v2h_pcs set		
+						PCS_BUSBAR_VOLTAGE=#{PcsBusbarVoltage},
+            			PCS_BUSBAR_ELECTRICITY=#{PcsBusbarElectricity},
+            			PCS_BUSBAR_POWER=#{PcsBusbarPower},
+            			PCS_TOTAL_ACTIVEPOWER=#{PcsTotalActivepower},
+            			PCS_TOTAL_REACTIVEPOWER=#{PcsTotalReactivepower},
+            			PCS_POWER_FACTOR=#{PcsPowerFactor},
+            			PCS_CHARGE=#{PcsCharge},
+            			PCS_DISCHARGE=#{PcsDischarge},
+            			INSERT_DATE=#{InsertDate},
+            			STATUS=#{Status},
+            			last_changed=now()
+		where 
+      		status=1 
+      		AND PCS_ID=#{PcsID}
+	</update>
+
+	<update id="deletePcs" parameterType="String">
+		update v2h_pcs set
+			status=-1
+		where
+      		PCS_ID=#{PcsID}
+	</update>
+	<resultMap id="pcsResult" type="com.v2h.core.model.PcsInfo">
+		<id property="PcsID" column="PCS_ID"/>		
+					<result property="PcsBusbarVoltage" column="PCS_BUSBAR_VOLTAGE"/>
+            		<result property="PcsBusbarElectricity" column="PCS_BUSBAR_ELECTRICITY"/>
+            		<result property="PcsBusbarPower" column="PCS_BUSBAR_POWER"/>
+            		<result property="PcsTotalActivepower" column="PCS_TOTAL_ACTIVEPOWER"/>
+            		<result property="PcsTotalReactivepower" column="PCS_TOTAL_REACTIVEPOWER"/>
+            		<result property="PcsPowerFactor" column="PCS_POWER_FACTOR"/>
+            		<result property="PcsCharge" column="PCS_CHARGE"/>
+            		<result property="PcsDischarge" column="PCS_DISCHARGE"/>
+            		<result property="InsertDate" column="INSERT_DATE"/>
+            		<result property="Status" column="STATUS"/>
+            	</resultMap>
+	<select id="getPcs" parameterType="String" resultMap="pcsResult">
+		SELECT * 
+		FROM v2h_pcs 
+		WHERE 
+      		status=1 
+      		AND PCS_ID=#{PcsID} 
+	</select>	
+    <sql id="searchValues">             
+           <!-- 搜索条件 -->
+           <if test="additionalWhereSql != null and additionalWhereSql!=''">
+      			${additionalWhereSql}
+           </if>
+    </sql> 
+	<select id="searchPcs" parameterType="com.v2h.core.search.PcsInfoSearch" resultMap="pcsResult">
+		SELECT 
+			*
+		FROM v2h_pcs 
+        WHERE
+        	status=1
+           <!-- 搜索条件-->
+           <include refid="searchValues"/>  
+           <if test="orderBy != null and orderBy !=''">
+		   	   Order By ${orderBy}
+           </if>
+           <if test="searchType != null and searchType.toString() == 'PAGES'">
+           <![CDATA[ LIMIT #{startRowNum},#{pageSize}  ]]> 
+           </if>
+           <if test="searchType != null and searchType.toString() == 'TOP'">
+           <![CDATA[ LIMIT 0,#{top}  ]]>  
+           </if>
+            <if test="limitSize != null and limitSize != ''">
+           		limit ${limitSize}
+           </if>
+	</select>
+	<select id="searchPcsCount" parameterType="com.v2h.core.search.PcsInfoSearch" resultType="int">
+		SELECT  count(PCS_ID) as totalCount 
+		FROM v2h_pcs 
+        WHERE
+        	STATUS=1
+           <!-- 搜索条件-->
+           <include refid="searchValues"/>  
+	</select>
+</mapper>

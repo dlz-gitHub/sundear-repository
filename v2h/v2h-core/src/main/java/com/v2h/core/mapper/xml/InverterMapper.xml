@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.v2h.core.mapper.InverterMapper">
+	 
+	<insert id="insertInverter" parameterType="com.v2h.core.model.InverterInfo">
+		INSERT INTO v2h_inverter(
+						INVERTER_ID,
+						DAILY_OUTPUTE,
+						TOTAL_OUTPUTE,
+						TOTAL_OUTPUTE_TIME,
+						RUNNING_STATUS,
+						INVERTER_TEMPERATURE,
+						BUS_VOLTAGE,
+						TOTAL_OUT_POWER,
+						POWER_FACTOR,
+						INVERTER_NUMBER,
+						INSERT_DATE,
+						insert_time,
+			last_changed,
+			status
+		) VALUES (
+			            #{InverterID},         
+                        #{DailyOutpute},         
+                        #{TotalOutpute},         
+                        #{TotalOutputeTime},         
+                        #{RunningStatus},         
+                        #{InverterTemperature},         
+                        #{BusVoltage},         
+                        #{TotalOutPower},         
+                        #{PowerFactor},         
+                        #{InverterNumber},         
+                        #{InsertDate},         
+                  		now(),
+      		now(),
+      		1
+		)
+	</insert>
+	<update id="updateInverter" parameterType="com.v2h.core.model.InverterInfo">
+		update v2h_inverter set		
+						DAILY_OUTPUTE=#{DailyOutpute},
+            			TOTAL_OUTPUTE=#{TotalOutpute},
+            			TOTAL_OUTPUTE_TIME=#{TotalOutputeTime},
+            			RUNNING_STATUS=#{RunningStatus},
+            			INVERTER_TEMPERATURE=#{InverterTemperature},
+            			BUS_VOLTAGE=#{BusVoltage},
+            			TOTAL_OUT_POWER=#{TotalOutPower},
+            			POWER_FACTOR=#{PowerFactor},
+            			INVERTER_NUMBER=#{InverterNumber},
+            			INSERT_DATE=#{InsertDate},
+            			STATUS=#{Status},
+            			last_changed=now()
+		where 
+      		status=1 
+      		AND INVERTER_ID=#{InverterID}
+	</update>
+
+	<update id="deleteInverter" parameterType="String">
+		update v2h_inverter set
+			status=-1
+		where
+      		INVERTER_ID=#{InverterID}
+	</update>
+	<resultMap id="inverterResult" type="com.v2h.core.model.InverterInfo">
+		<id property="InverterID" column="INVERTER_ID"/>		
+					<result property="DailyOutpute" column="DAILY_OUTPUTE"/>
+            		<result property="TotalOutpute" column="TOTAL_OUTPUTE"/>
+            		<result property="TotalOutputeTime" column="TOTAL_OUTPUTE_TIME"/>
+            		<result property="RunningStatus" column="RUNNING_STATUS"/>
+            		<result property="InverterTemperature" column="INVERTER_TEMPERATURE"/>
+            		<result property="BusVoltage" column="BUS_VOLTAGE"/>
+            		<result property="TotalOutPower" column="TOTAL_OUT_POWER"/>
+            		<result property="PowerFactor" column="POWER_FACTOR"/>
+            		<result property="InverterNumber" column="INVERTER_NUMBER"/>
+            		<result property="InsertDate" column="INSERT_DATE"/>
+            		<result property="Status" column="STATUS"/>
+            	</resultMap>
+	<select id="getInverter" parameterType="String" resultMap="inverterResult">
+		SELECT * 
+		FROM v2h_inverter 
+		WHERE 
+      		status=1 
+      		AND INVERTER_ID=#{InverterID} 
+	</select>	
+    <sql id="searchValues">             
+           <!-- 搜索条件 -->
+           <if test="additionalWhereSql != null and additionalWhereSql!=''">
+      			${additionalWhereSql}
+           </if>
+    </sql> 
+	<select id="searchInverter" parameterType="com.v2h.core.search.InverterInfoSearch" resultMap="inverterResult">
+		SELECT 
+			*
+		FROM v2h_inverter 
+        WHERE
+        	status=1
+           <!-- 搜索条件-->
+           <include refid="searchValues"/>  
+           <if test="orderBy != null and orderBy !=''">
+		   	   Order By ${orderBy}
+           </if>
+           <if test="searchType != null and searchType.toString() == 'PAGES'">
+           <![CDATA[ LIMIT #{startRowNum},#{pageSize}  ]]> 
+           </if>
+           <if test="searchType != null and searchType.toString() == 'TOP'">
+           <![CDATA[ LIMIT 0,#{top}  ]]>  
+           </if>
+           <if test="limitSize != null and limitSize != ''">
+           		limit ${limitSize}
+           </if>
+	</select>
+	<select id="searchInverterCount" parameterType="com.v2h.core.search.InverterInfoSearch" resultType="int">
+		SELECT  count(INVERTER_ID) as totalCount 
+		FROM v2h_inverter 
+        WHERE
+        	STATUS=1
+           <!-- 搜索条件-->
+           <include refid="searchValues"/>  
+	</select>
+</mapper>

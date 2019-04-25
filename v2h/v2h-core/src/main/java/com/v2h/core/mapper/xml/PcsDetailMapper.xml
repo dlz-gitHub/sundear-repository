@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.v2h.core.mapper.PcsDetailMapper">
+	 
+	<insert id="insertPcsDetail" parameterType="com.v2h.core.model.PcsDetailInfo">
+		INSERT INTO v2h_pcs_detail(
+						PCS_DETAIL_ID,
+						PCS_DETAIL_POWER,
+						PCS_DETAIL_VOLTAGE,
+						PCS_DETAIL_ELECTRICITY,
+						PCS_DETAIL_INPUTE,
+						PCS_DETAIL_OUTPUTE,
+						PCS_DETAIL_NUMBER,
+						INSERT_DATE,
+						insert_time,
+			last_changed,
+			status
+		) VALUES (
+			            #{PcsDetailID},         
+                        #{PcsDetailPower},         
+                        #{PcsDetailVoltage},         
+                        #{PcsDetailElectricity},         
+                        #{PcsDetailInpute},         
+                        #{PcsDetailOutpute},         
+                        #{PcsDetailNumber},         
+                        #{InsertDate},         
+                  		now(),
+      		now(),
+      		1
+		)
+	</insert>
+	<update id="updatePcsDetail" parameterType="com.v2h.core.model.PcsDetailInfo">
+		update v2h_pcs_detail set		
+						PCS_DETAIL_POWER=#{PcsDetailPower},
+            			PCS_DETAIL_VOLTAGE=#{PcsDetailVoltage},
+            			PCS_DETAIL_ELECTRICITY=#{PcsDetailElectricity},
+            			PCS_DETAIL_INPUTE=#{PcsDetailInpute},
+            			PCS_DETAIL_OUTPUTE=#{PcsDetailOutpute},
+            			PCS_DETAIL_NUMBER=#{PcsDetailNumber},
+            			INSERT_DATE=#{InsertDate},
+            			STATUS=#{Status},
+            			last_changed=now()
+		where 
+      		status=1 
+      		AND PCS_DETAIL_ID=#{PcsDetailID}
+	</update>
+
+	<update id="deletePcsDetail" parameterType="String">
+		update v2h_pcs_detail set
+			status=-1
+		where
+      		PCS_DETAIL_ID=#{PcsDetailID}
+	</update>
+	<resultMap id="pcsDetailResult" type="com.v2h.core.model.PcsDetailInfo">
+		<id property="PcsDetailID" column="PCS_DETAIL_ID"/>		
+					<result property="PcsDetailPower" column="PCS_DETAIL_POWER"/>
+            		<result property="PcsDetailVoltage" column="PCS_DETAIL_VOLTAGE"/>
+            		<result property="PcsDetailElectricity" column="PCS_DETAIL_ELECTRICITY"/>
+            		<result property="PcsDetailInpute" column="PCS_DETAIL_INPUTE"/>
+            		<result property="PcsDetailOutpute" column="PCS_DETAIL_OUTPUTE"/>
+            		<result property="PcsDetailNumber" column="PCS_DETAIL_NUMBER"/>
+            		<result property="InsertDate" column="INSERT_DATE"/>
+            		<result property="Status" column="STATUS"/>
+            	</resultMap>
+	<select id="getPcsDetail" parameterType="String" resultMap="pcsDetailResult">
+		SELECT * 
+		FROM v2h_pcs_detail 
+		WHERE 
+      		status=1 
+      		AND PCS_DETAIL_ID=#{PcsDetailID} 
+	</select>	
+    <sql id="searchValues">             
+           <!-- 搜索条件 -->
+           <if test="additionalWhereSql != null and additionalWhereSql!=''">
+      			${additionalWhereSql}
+           </if>
+    </sql> 
+	<select id="searchPcsDetail" parameterType="com.v2h.core.search.PcsDetailInfoSearch" resultMap="pcsDetailResult">
+		SELECT 
+			*
+		FROM v2h_pcs_detail 
+        WHERE
+        	status=1
+           <!-- 搜索条件-->
+           <include refid="searchValues"/>  
+           <if test="orderBy != null and orderBy !=''">
+		   	   Order By ${orderBy}
+           </if>
+           <if test="searchType != null and searchType.toString() == 'PAGES'">
+           <![CDATA[ LIMIT #{startRowNum},#{pageSize}  ]]> 
+           </if>
+           <if test="searchType != null and searchType.toString() == 'TOP'">
+           <![CDATA[ LIMIT 0,#{top}  ]]>  
+           </if>
+	</select>
+	<select id="searchPcsDetailCount" parameterType="com.v2h.core.search.PcsDetailInfoSearch" resultType="int">
+		SELECT  count(PCS_DETAIL_ID) as totalCount 
+		FROM v2h_pcs_detail 
+        WHERE
+        	STATUS=1
+           <!-- 搜索条件-->
+           <include refid="searchValues"/>  
+	</select>
+</mapper>

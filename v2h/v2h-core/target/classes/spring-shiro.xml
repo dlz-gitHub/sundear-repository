@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+	
+	<!-- 开启AOP注解扫描 -->
+	<aop:aspectj-autoproxy proxy-target-class="true" />
+	
+	<!-- 设置AOP，让Spring自动对目标生成代理，需要使用AspectJ表达式 -->
+	<aop:config proxy-target-class="true">
+		<!-- 切面：整合切入点和通知 -->
+	<aop:advisor advice-ref="txAdvice"
+			pointcut="execution(* com.onstarbudget.dao.*.*(..))" />
+	</aop:config>
+	
+	<!-- 自定义Realm -->
+    <bean id="MyRealm" class="com.common.SiteRealm"> </bean>  
+  
+
+	<!-- 安全管理器 -->
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+     <property name="realm" ref="MyRealm"/>
+  </bean> 
+  
+   
+  <!-- 自定义退出路径 -->  
+    <bean id="logout" class="org.apache.shiro.web.filter.authc.LogoutFilter">   
+        <property name="redirectUrl" value="/Home/Login"/>   
+    </bean> 
+    
+    <!-- Shiro过滤器 -->
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">   
+        <!-- Shiro的核心安全接口,这个属性是必须的 -->
+        <property name="securityManager" ref="securityManager"/>    
+        <!-- 身份认证失败，则跳转到登录页面的配置 -->
+        <property name="loginUrl" value="/Home/Login" />
+          <property name="unauthorizedUrl" value="/unauthorized"/>  
+         <property name="filterChainDefinitions">  
+            <value>  
+            	/index = anon 
+				/Home/Home = authc
+				/Home/** = anon
+                /css/** = anon
+                /js/** = anon
+                /lib/** = anon
+                /fonts/** = anon
+                /images/** = anon
+                /** = authc 
+            </value>  
+        </property>  
+        <property name="filters">  
+            <map>  
+                <entry key="logout" value-ref="logout" />  
+            </map>  
+        </property>
+    </bean>  
+    
+ 
+    <!-- 保证实现了Shiro内部lifecycle函数的bean执行 -->
+	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor" />
+	  
+	<!-- 开启Shiro注解 -->
+	<bean
+		class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"
+		depends-on="lifecycleBeanPostProcessor" />
+	<bean
+		class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+		<property name="securityManager" ref="securityManager" />
+	</bean>
+	
+	
+	<!-- 无权访问跳转的页面 -->
+	<bean
+		class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionMappings">
+			<props>
+				<prop key="org.apache.shiro.authz.UnauthorizedException">Error</prop>
+			</props>
+		</property>
+	</bean>
+   
+ 
+</beans>  
